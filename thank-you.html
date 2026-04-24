@@ -25,13 +25,28 @@
             text-align: center;
         }
         .card-top {
-            background: linear-gradient(135deg, #2d5016 0%, #1a3009 100%);
-            padding: 2rem;
+            background: #ffffff;
+            padding: 2.5rem 2rem 1.5rem;
+            border-bottom: 1px solid #f0ece6;
         }
-        .card-top img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(200,151,43,0.5); margin: 0 auto 1rem; display: block; }
+        .card-top img { width: 180px; height: 180px; border-radius: 50%; object-fit: cover; border: 4px solid rgba(200,151,43,0.8); box-shadow: 0 4px 24px rgba(0,0,0,0.15); margin: 0 auto 1rem; display: block; }
+        .card-top h1 { font-family: 'Playfair Display', serif; color: #a61c1c; font-size: 1.9rem; margin: 0 0 0.25rem; }
+        .card-top p { color: #333; font-size: 0.95rem; margin: 0; font-weight: 600; }
+        .badge {
+            display: inline-block;
+            background: #fff;
+            border: 1.5px solid #c8972b;
+            color: #8b6914;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            padding: 0.3rem 0.9rem;
+            border-radius: 99px;
+            margin-top: 0.75rem;
+        }
         .checkmark {
             width: 64px; height: 64px;
-            background: rgba(34,197,94,0.15);
+            background: rgba(34,197,94,0.1);
             border: 2px solid rgba(34,197,94,0.4);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
@@ -65,13 +80,16 @@
 <div class="card">
     <div class="card-top">
         <img src="logo.jpg" alt="Buckeye Baker of Grimes Co.">
-        <div class="checkmark">
+        <h1>Buckeye Baker of Grimes Co.</h1>
+        <p>Custom Cheesecake Order Form</p>
+        <div class="badge">🏡 Licensed Cottage Baker · Texas ID #6959</div>
+        <div class="checkmark" style="margin-top:1.25rem;">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
         </div>
-        <h1 style="color:#fff; font-size:1.5rem; margin:0 0 0.25rem;">Order Submitted!</h1>
-        <p style="color:rgba(255,255,255,0.75); font-size:0.9rem; margin:0;">Thank you for your order 🎂</p>
+        <h2 style="font-family:'Playfair Display',serif; color:#1a1a1a; font-size:1.4rem; margin:0 0 0.25rem;">Order Submitted!</h2>
+        <p style="color:#666; font-size:0.9rem; margin:0 0 1rem;">Thank you for your order 🎂</p>
     </div>
     <div class="card-body">
         <p style="color:#555; font-size:0.9rem; margin: 0 0 1.5rem; line-height:1.6;">
@@ -87,7 +105,6 @@
             <strong>Questions?</strong> Reply to your confirmation email or reach out to <a href="mailto:buckeyebakergrimesco@gmail.com" style="color:#a61c1c;">buckeyebakergrimesco@gmail.com</a>
         </div>
         <a href="index.html" class="btn">Place Another Order</a>
-        <p style="font-size:0.75rem; color:#bbb; margin-top:1rem;">Licensed Cottage Baker in Texas — ID #6959</p>
     </div>
 </div>
 </body>
