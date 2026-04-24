@@ -36,8 +36,8 @@
             overflow: hidden;
         }
         .card-header {
-            background: linear-gradient(135deg, var(--green) 0%, #1a3009 100%);
-            padding: 2rem 2rem 1.5rem;
+            background: linear-gradient(135deg, #8b1212 0%, #5a0a0a 100%);
+            padding: 2.5rem 2rem 2rem;
             text-align: center;
             position: relative;
         }
@@ -50,15 +50,15 @@
             border-radius: 50% 50% 0 0 / 100% 100% 0 0;
         }
         .card-header img {
-            width: 100px; height: 100px;
+            width: 150px; height: 150px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid rgba(200,151,43,0.6);
-            box-shadow: 0 2px 16px rgba(0,0,0,0.3);
-            margin-bottom: 0.75rem;
+            border: 4px solid rgba(200,151,43,0.8);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            margin-bottom: 1rem;
         }
-        .card-header h1 { color: #fff; font-size: 1.6rem; line-height: 1.2; margin: 0; }
-        .card-header h2 { color: rgba(255,255,255,0.8); font-size: 1rem; font-weight: 300; margin: 0.25rem 0 0; font-family: 'Lato', sans-serif; letter-spacing: 0.05em; }
+        .card-header h1 { color: #fff; font-size: 1.8rem; line-height: 1.2; margin: 0; }
+        .card-header h2 { color: rgba(255,255,255,0.85); font-size: 1.05rem; font-weight: 300; margin: 0.35rem 0 0; font-family: 'Lato', sans-serif; letter-spacing: 0.05em; }
         .badge {
             display: inline-block;
             background: rgba(200,151,43,0.2);
@@ -218,11 +218,11 @@
             <!-- ─── SECTION 1: Prices ─── -->
             <div class="section-label">1. Single Flavor Prices</div>
             <ul class="price-table" style="list-style:none; padding:0; margin: 0 0 1.5rem;">
-                <li><span>5" <span style="color:#aaa;">(~4 servings)</span></span><span class="price-tag" id="display-price-5">$15</span></li>
-                <li><span>6" <span style="color:#aaa;">(~6 servings)</span></span><span class="price-tag" id="display-price-6">$20</span></li>
-                <li><span>7" <span style="color:#aaa;">(~6 servings)</span></span><span class="price-tag" id="display-price-7">$25</span></li>
-                <li><span>8" <span style="color:#aaa;">(~8 servings)</span></span><span class="price-tag" id="display-price-8">$32</span></li>
-                <li><span>10" <span style="color:#aaa;">(12+ generous)</span></span><span class="price-tag" id="display-price-10">$42</span></li>
+                <li><span>5" x 3" <span style="color:#666;">(~4 servings)</span></span><span class="price-tag" id="display-price-5">$15</span></li>
+                <li><span>6" x 3" <span style="color:#666;">(~6 servings)</span></span><span class="price-tag" id="display-price-6">$20</span></li>
+                <li><span>7" x 3" <span style="color:#666;">(~6 servings)</span></span><span class="price-tag" id="display-price-7">$25</span></li>
+                <li><span>8" x 3" <span style="color:#666;">(~8 servings)</span></span><span class="price-tag" id="display-price-8">$32</span></li>
+                <li><span>10" x 3" <span style="color:#666;">(~16 servings)</span></span><span class="price-tag" id="display-price-10">$42</span></li>
             </ul>
             <hr class="divider">
 
@@ -402,29 +402,28 @@
 // ─────────────────────────────────────────────
 // CONFIGURATION — fill these in after Airtable setup
 // ─────────────────────────────────────────────
-const AIRTABLE_API_KEY  = 'patGoP9x5PhH0YTiY.1121b971e4e5875c94081feb8c12687a791fcfd910bc979c0b80e57e71c2c5fd';   // from admin panel setup
-const AIRTABLE_BASE_ID  = 'appIeVuiOyI9gQGAM';   // from admin panel setup
-const NTFY_TOPIC        = 'buckeye-baker-orders-grimes-tx-77868';     // change to something unique/private
+const AIRTABLE_API_KEY  = 'YOUR_AIRTABLE_API_KEY';   // from admin panel setup
+const AIRTABLE_BASE_ID  = 'YOUR_AIRTABLE_BASE_ID';   // from admin panel setup
+const NTFY_TOPIC        = 'buckeye-baker-orders';     // change to something unique/private
 
 // ─────────────────────────────────────────────
 // DATA
 // ─────────────────────────────────────────────
-// Regular prices
 const sizeOptions = [
     { value: '',  label: '-- Select Size --', price: 0,  promoPrice: 0,  specialtyFee: 0, promoSpecialtyFee: 0, gfFee: 0, inclFee: 0 },
-    { value: '5', label: '5" — $15 (~4 servings)',  price: 15, promoPrice: 10, specialtyFee: 2, promoSpecialtyFee: 2, gfFee: 2, inclFee: 2 },
-    { value: '6', label: '6" — $20 (~6 servings)',  price: 20, promoPrice: 12, specialtyFee: 3, promoSpecialtyFee: 3, gfFee: 2, inclFee: 3 },
-    { value: '7', label: '7" — $25 (~6 servings)',  price: 25, promoPrice: 15, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 2, inclFee: 5 },
-    { value: '8', label: '8" — $32 (~8 servings)',  price: 32, promoPrice: 20, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
-    { value: '10',label: '10" — $42 (12+ servings)',price: 42, promoPrice: 30, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
+    { value: '5', label: '5" x 3" — $15 (~4 servings)',   price: 15, promoPrice: 10, specialtyFee: 2, promoSpecialtyFee: 2, gfFee: 2, inclFee: 2 },
+    { value: '6', label: '6" x 3" — $20 (~6 servings)',   price: 20, promoPrice: 12, specialtyFee: 3, promoSpecialtyFee: 3, gfFee: 2, inclFee: 3 },
+    { value: '7', label: '7" x 3" — $25 (~6 servings)',   price: 25, promoPrice: 15, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 2, inclFee: 5 },
+    { value: '8', label: '8" x 3" — $32 (~8 servings)',   price: 32, promoPrice: 20, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
+    { value: '10',label: '10" x 3" — $42 (~16 servings)', price: 42, promoPrice: 30, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
 ];
 const specialtySizeOptions = [
     { value: '',  label: '-- Select Size --', price: 0,  promoPrice: 0,  specialtyFee: 0, promoSpecialtyFee: 0, gfFee: 0, inclFee: 0 },
-    { value: '5', label: '5" — $17 (~4 servings)',  price: 17, promoPrice: 12, specialtyFee: 2, promoSpecialtyFee: 2, gfFee: 2, inclFee: 2 },
-    { value: '6', label: '6" — $23 (~6 servings)',  price: 23, promoPrice: 15, specialtyFee: 3, promoSpecialtyFee: 3, gfFee: 2, inclFee: 3 },
-    { value: '7', label: '7" — $30 (~6 servings)',  price: 30, promoPrice: 20, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 2, inclFee: 5 },
-    { value: '8', label: '8" — $37 (~8 servings)',  price: 37, promoPrice: 25, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
-    { value: '10',label: '10" — $47 (12+ servings)',price: 47, promoPrice: 35, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
+    { value: '5', label: '5" x 3" — $17 (~4 servings)',   price: 17, promoPrice: 12, specialtyFee: 2, promoSpecialtyFee: 2, gfFee: 2, inclFee: 2 },
+    { value: '6', label: '6" x 3" — $23 (~6 servings)',   price: 23, promoPrice: 15, specialtyFee: 3, promoSpecialtyFee: 3, gfFee: 2, inclFee: 3 },
+    { value: '7', label: '7" x 3" — $30 (~6 servings)',   price: 30, promoPrice: 20, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 2, inclFee: 5 },
+    { value: '8', label: '8" x 3" — $37 (~8 servings)',   price: 37, promoPrice: 25, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
+    { value: '10',label: '10" x 3" — $47 (~16 servings)', price: 47, promoPrice: 35, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
 ];
 const crustOptions = ['Graham Cracker', 'Chocolate Oreo', 'Golden Oreo', 'Biscoff', 'Gluten-Free Graham', 'Other'];
 
