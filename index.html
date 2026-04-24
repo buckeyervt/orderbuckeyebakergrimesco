@@ -714,21 +714,18 @@ function validateReadyDate() {
 }
 
 // ─────────────────────────────────────────────
-// NTFY NOTIFICATION
+// PUSHOVER NOTIFICATION
 // ─────────────────────────────────────────────
 async function sendNtfyNotification(customerName, readyDate, estimate) {
-    if (!NTFY_TOPIC)  {
-        // Still send even with default topic — user should change it to something private
-    }
     try {
-await fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: `🎂 New Cheesecake Order! From: ${customerName} | Ready: ${readyDate} | Est: ${estimate}`
+        await fetch('https://api.pushover.net/1/messages.json', {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `token=ayj1psve69vchrwb83trn7uioz58rc&user=u9u851qtjwjdw4xwih642oqpqkzksp&title=🎂 New Cheesecake Order!&message=From: ${customerName} | Ready: ${readyDate} | Est: ${estimate}`
         });
     } catch(e) {
-        // Fail silently — form still submits
-        console.log('Ntfy notification failed:', e.message);
+        console.log('Pushover notification failed:', e.message);
     }
 }
 
