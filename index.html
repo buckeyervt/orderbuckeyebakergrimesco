@@ -725,7 +725,7 @@ async function sendNtfyNotification(customerName, readyDate, estimate) {
             method: 'POST',
             mode: 'no-cors',
             body: `🎂 New Cheesecake Order! From: ${customerName} | Ready: ${readyDate} | Est: ${estimate}`
-    } catch(e) {
+    catch(e) {
         // Fail silently — form still submits
         console.log('Ntfy notification failed:', e.message);
     }
