@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buckeye Baker of Grimes Co. — Custom Cheesecake Orders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #a61c1c;
+            --red-dark: #7f1414;
+            --red-light: #fdf2f2;
+            --gold: #c8972b;
+            --green: #2d5016;
+            --cream: #fdfaf5;
+            --warm-gray: #6b6560;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--cream);
+            background-image:
+                radial-gradient(ellipse at 20% 0%, rgba(166,28,28,0.05) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 100%, rgba(200,151,43,0.05) 0%, transparent 60%);
+            min-height: 100vh;
+            padding: 1.5rem 1rem;
+        }
+        h1, h2, h3, .playfair { font-family: 'Playfair Display', serif; }
+        .order-card {
+            max-width: 660px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, var(--green) 0%, #1a3009 100%);
+            padding: 2rem 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0; right: 0;
+            height: 24px;
+            background: #fff;
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+        }
+        .card-header img {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(200,151,43,0.6);
+            box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+            margin-bottom: 0.75rem;
+        }
+        .card-header h1 { color: #fff; font-size: 1.6rem; line-height: 1.2; margin: 0; }
+        .card-header h2 { color: rgba(255,255,255,0.8); font-size: 1rem; font-weight: 300; margin: 0.25rem 0 0; font-family: 'Lato', sans-serif; letter-spacing: 0.05em; }
+        .badge {
+            display: inline-block;
+            background: rgba(200,151,43,0.2);
+            border: 1px solid rgba(200,151,43,0.4);
+            color: #e8c060;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            padding: 0.2rem 0.7rem;
+            border-radius: 99px;
+            margin-top: 0.6rem;
+        }
+        .card-body { padding: 2rem; }
+        .section-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: #1a1a1a;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+        .section-sub { font-size: 0.83rem; color: var(--warm-gray); margin-bottom: 0.75rem; }
+        .divider { border: none; border-top: 1px solid #f0ece6; margin: 1.5rem 0; }
+
+        /* Availability banner */
+        #availability-banner {
+            display: none;
+            margin-bottom: 1rem;
+        }
+
+        /* Price table */
+        .price-table { background: #fafaf8; border-radius: 0.75rem; overflow: hidden; border: 1px solid #ede8e0; }
+        .price-table li { display: flex; justify-content: space-between; padding: 0.45rem 1rem; font-size: 0.875rem; }
+        .price-table li:not(:last-child) { border-bottom: 1px solid #f0ece6; }
+        .price-tag { font-weight: 700; color: var(--red); }
+
+        /* Flavor grid */
+        .flavor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .flavor-grid .full { grid-column: 1 / -1; }
+        .flavor-item label {
+            display: flex; align-items: flex-start; gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border: 1.5px solid #e5e1da;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            font-size: 0.875rem; color: #333;
+        }
+        .flavor-item label:hover { border-color: #c9a0a0; background: #fdf6f6; }
+        .flavor-checkbox:checked + span, .specialty-checkbox:checked + span, .inclusion-checkbox:checked + span {
+            color: var(--red); font-weight: 700;
+        }
+        .flavor-checkbox, .specialty-checkbox, .inclusion-checkbox { accent-color: var(--red); margin-top: 2px; flex-shrink: 0; }
+
+        /* Sub-dropdowns */
+        .sub-panel {
+            margin-top: 0.4rem; margin-left: 1.25rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+        }
+        .sub-panel.crust-panel { background: #fdf2f2; border-left: 3px solid var(--red); }
+        .sub-panel.size-panel  { background: #eff6ff; border-left: 3px solid #3b82f6; }
+        .sub-panel.base-panel  { background: #fefce8; border-left: 3px solid #eab308; }
+        .sub-panel label { display: block; font-size: 0.78rem; color: #555; margin-bottom: 0.25rem; }
+        .sub-panel select, .sub-panel input[type=text] {
+            width: 100%; padding: 0.35rem 0.5rem;
+            border: 1px solid #d1d5db; border-radius: 0.375rem;
+            font-size: 0.85rem; font-family: 'Lato', sans-serif;
+        }
+
+        /* Info boxes */
+        .info-box { border-radius: 0.65rem; padding: 0.85rem 1rem; font-size: 0.875rem; margin-bottom: 0.75rem; }
+        .info-red   { background: #fdf2f2; border: 1px solid #fca5a5; color: #7f1d1d; }
+        .info-yellow { background: #fffbeb; border: 1px solid #fcd34d; color: #78350f; }
+        .info-green { background: #f0fdf4; border: 1px solid #86efac; color: #14532d; }
+
+        /* Contact fields */
+        .field-group { margin-bottom: 1rem; }
+        .field-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.35rem; }
+        .field-group input, .field-group textarea, .field-group select {
+            width: 100%; padding: 0.6rem 0.75rem;
+            border: 1.5px solid #d1d5db; border-radius: 0.5rem;
+            font-family: 'Lato', sans-serif; font-size: 0.9rem;
+            transition: border-color 0.15s;
+        }
+        .field-group input:focus, .field-group textarea:focus {
+            border-color: var(--red); outline: none;
+            box-shadow: 0 0 0 3px rgba(166,28,28,0.1);
+        }
+
+        /* Date input — blocked dates shown red */
+        input[type=datetime-local]::-webkit-calendar-picker-indicator { cursor: pointer; }
+
+        /* Price summary */
+        .price-summary {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-radius: 0.75rem; padding: 1.25rem 1.5rem;
+            color: #fff;
+        }
+        .price-summary h3 { color: #fff; font-size: 1.05rem; margin: 0 0 0.75rem; font-family: 'Playfair Display', serif; }
+        .price-row { display: flex; justify-content: space-between; font-size: 0.875rem; color: rgba(255,255,255,0.7); padding: 0.2rem 0; }
+        .price-row.total { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 0.5rem; padding-top: 0.6rem; font-size: 1.05rem; color: #fff; font-weight: 700; }
+        .price-row.total span:last-child { color: #f0c060; }
+
+        /* Submit button */
+        .submit-btn {
+            display: block; width: 100%;
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+            color: #fff; font-family: 'Playfair Display', serif;
+            font-size: 1.1rem; font-weight: 600;
+            padding: 0.9rem 1rem; border: none;
+            border-radius: 0.75rem; cursor: pointer;
+            letter-spacing: 0.03em;
+            box-shadow: 0 4px 14px rgba(166,28,28,0.35);
+            transition: transform 0.15s, box-shadow 0.15s;
+            margin-top: 1.25rem;
+        }
+        .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(166,28,28,0.45); }
+        .submit-btn:active { transform: translateY(0); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Date blocked overlay */
+        .date-blocked-msg { color: var(--red); font-size: 0.82rem; margin-top: 0.35rem; display: none; }
+
+        @media (max-width: 480px) {
+            .flavor-grid { grid-template-columns: 1fr; }
+            .flavor-grid .full { grid-column: 1; }
+            .card-body { padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="order-card">
+    <!-- Header -->
+    <div class="card-header">
+        <img src="logo.jpg" alt="Buckeye Baker of Grimes Co.">
+        <h1>Buckeye Baker<br>of Grimes Co.</h1>
+        <h2>Custom Cheesecake Order Form</h2>
+        <div class="badge">🏡 Licensed Cottage Baker · Texas ID #6959</div>
+    </div>
+
+    <div class="card-body">
+        <p class="text-sm text-center" style="color: var(--warm-gray); margin: 0 0 1.25rem;">
+            All prices are an <strong>estimate</strong>. Final price confirmed via email before baking begins.
+        </p>
+
+        <!-- Availability banner (filled dynamically) -->
+        <div id="availability-banner"></div>
+
+        <form id="cheesecake-form" action="https://formsubmit.co/buckeyebakergrimesco@gmail.com" method="POST">
+            <!-- FormSubmit hidden fields -->
+            <input type="hidden" name="_honeypot" value="">
+            <input type="hidden" name="_subject" id="email-subject" value="New Cheesecake Order">
+            <input type="hidden" name="_next" value="https://buckeyervt.github.io/orderbuckeyebakergrimesco/thank-you.html">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="Total_Estimated_Price" id="Total_Estimated_Price" value="$0.00">
+
+            <!-- ─── SECTION 1: Prices ─── -->
+            <div class="section-label">1. Single Flavor Prices</div>
+            <ul class="price-table" style="list-style:none; padding:0; margin: 0 0 1.5rem;">
+                <li><span>5" <span style="color:#aaa;">(~4 servings)</span></span><span class="price-tag" id="display-price-5">$15</span></li>
+                <li><span>6" <span style="color:#aaa;">(~6 servings)</span></span><span class="price-tag" id="display-price-6">$20</span></li>
+                <li><span>7" <span style="color:#aaa;">(~6 servings)</span></span><span class="price-tag" id="display-price-7">$25</span></li>
+                <li><span>8" <span style="color:#aaa;">(~8 servings)</span></span><span class="price-tag" id="display-price-8">$32</span></li>
+                <li><span>10" <span style="color:#aaa;">(12+ generous)</span></span><span class="price-tag" id="display-price-10">$42</span></li>
+            </ul>
+            <hr class="divider">
+
+            <!-- ─── SECTION 2: Single Flavor ─── -->
+            <div class="info-red" style="margin-bottom:1rem;">
+                <strong>Order types:</strong> <br>
+                <strong>Single Flavor</strong> — Vanilla, Chocolate, or Other &nbsp;|&nbsp;
+                <strong>Specialty</strong> — signature combos with size surcharge &nbsp;|&nbsp;
+                <strong>Classic with Inclusions</strong> — base + mix-ins<br>
+                <span style="font-size:0.82rem; opacity:0.8;">You may select more than one from any section!</span>
+            </div>
+
+            <div class="section-label">2. Single Flavor Cheesecake</div>
+            <p class="section-sub">Select one or more flavors. Choose a size and crust type for each.</p>
+            <div class="flavor-grid" id="flavor-section">
+                <div class="flavor-item">
+                    <label>
+                        <input type="checkbox" name="Base_Flavors" value="Vanilla" class="flavor-checkbox" data-flavor-id="base-vanilla">
+                        <span>Vanilla</span>
+                    </label>
+                    <div class="sub-panel size-panel hidden" id="size-for-base-vanilla"></div>
+                    <div class="sub-panel crust-panel hidden" id="crust-for-base-vanilla"></div>
+                </div>
+                <div class="flavor-item">
+                    <label>
+                        <input type="checkbox" name="Base_Flavors" value="Chocolate" class="flavor-checkbox" data-flavor-id="base-chocolate">
+                        <span>Chocolate</span>
+                    </label>
+                    <div class="sub-panel size-panel hidden" id="size-for-base-chocolate"></div>
+                    <div class="sub-panel crust-panel hidden" id="crust-for-base-chocolate"></div>
+                </div>
+                <div class="flavor-item full">
+                    <label>
+                        <input type="checkbox" name="Base_Flavors" value="Other" class="flavor-checkbox" data-flavor-id="base-other" id="base-flavor-other-cb">
+                        <span>Other</span>
+                    </label>
+                    <div id="base-other-detail" class="hidden" style="margin: 0.4rem 0 0 1.25rem;">
+                        <input type="text" name="Other_Base_Flavor_Details" id="other_flavor_details" placeholder="e.g., Coffee, Peanut Butter" style="width:100%; padding:0.4rem 0.6rem; border:1px solid #d1d5db; border-radius:0.375rem; font-size:0.875rem;">
+                    </div>
+                    <div class="sub-panel size-panel hidden" id="size-for-base-other"></div>
+                    <div class="sub-panel crust-panel hidden" id="crust-for-base-other"></div>
+                </div>
+            </div>
+            <hr class="divider">
+
+            <!-- ─── SECTION 3: Specialty ─── -->
+            <div class="section-label">3. Specialty Flavors</div>
+            <p class="section-sub">Signature flavor combinations. Specialty selections add a size-based surcharge.</p>
+            <div class="flavor-grid" id="specialty-section">
+                <!-- Specialty items -->
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="White Chocolate Raspberry" class="specialty-checkbox" data-flavor-id="spec-white-choc-rasp"><span>White Chocolate Raspberry</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-white-choc-rasp"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-white-choc-rasp"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Lemon Blueberry" class="specialty-checkbox" data-flavor-id="spec-lemon-blueberry"><span>Lemon Blueberry</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-lemon-blueberry"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-lemon-blueberry"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Strawberry with Strawberry Swirl" class="specialty-checkbox" data-flavor-id="spec-strawberry-swirl"><span>Strawberry w/ Swirl</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-strawberry-swirl"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-strawberry-swirl"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Bananas Foster" class="specialty-checkbox" data-flavor-id="spec-bananas-foster"><span>Bananas Foster</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-bananas-foster"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-bananas-foster"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Salted Caramel" class="specialty-checkbox" data-flavor-id="spec-salted-caramel"><span>Salted Caramel</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-salted-caramel"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-salted-caramel"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Black Forest" class="specialty-checkbox" data-flavor-id="spec-black-forest"><span>Black Forest</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-black-forest"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-black-forest"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Pumpkin Spice" class="specialty-checkbox" data-flavor-id="spec-pumpkin-spice"><span>Pumpkin Spice</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-pumpkin-spice"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-pumpkin-spice"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Buckeye" class="specialty-checkbox" data-flavor-id="spec-buckeye"><span>Buckeye</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-buckeye"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-buckeye"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Tiramisu" class="specialty-checkbox" data-flavor-id="spec-tiramisu"><span>Tiramisu</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-tiramisu"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-tiramisu"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Pecan Praline" class="specialty-checkbox" data-flavor-id="spec-pecan-praline"><span>Pecan Praline</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-pecan-praline"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-pecan-praline"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Creme Brulee" class="specialty-checkbox" data-flavor-id="spec-creme-brulee"><span>Crème Brûlée</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-creme-brulee"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-creme-brulee"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Chocolate Turtle" class="specialty-checkbox" data-flavor-id="spec-chocolate-turtle"><span>Chocolate Turtle</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-chocolate-turtle"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-chocolate-turtle"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Specialty_Flavors" value="Key Lime" class="specialty-checkbox" data-flavor-id="spec-key-lime"><span>Key Lime</span></label><div class="sub-panel size-panel hidden" id="size-for-spec-key-lime"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-key-lime"></div></div>
+                <div class="flavor-item full"><label><input type="checkbox" name="Specialty_Flavors" value="Candy Bar" class="specialty-checkbox" data-flavor-id="spec-candy-bar"><span>Candy Bar <span style="font-size:0.78rem;color:#888;">(Twix, Snickers, or Reese's style)</span></span></label><div class="sub-panel size-panel hidden" id="size-for-spec-candy-bar"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-candy-bar"></div></div>
+                <div class="flavor-item full"><label><input type="checkbox" name="Specialty_Flavors" value="Birthday Cake" class="specialty-checkbox" data-flavor-id="spec-birthday-cake"><span>Birthday Cake <span style="font-size:0.78rem;color:#888;">(Vanilla base w/ cake batter &amp; sprinkles)</span></span></label><div class="sub-panel size-panel hidden" id="size-for-spec-birthday-cake"></div><div class="sub-panel crust-panel hidden" id="crust-for-spec-birthday-cake"></div></div>
+                <div class="flavor-item full">
+                    <label><input type="checkbox" name="Specialty_Flavors" value="Other" class="specialty-checkbox" data-flavor-id="spec-other" id="specialty-other-cb"><span>Other Specialty</span></label>
+                    <div id="specialty-other-detail" class="hidden" style="margin: 0.4rem 0 0 1.25rem;">
+                        <input type="text" name="Other_Specialty_Flavor_Details" id="other_specialty_details" placeholder="Describe your custom specialty flavor" style="width:100%; padding:0.4rem 0.6rem; border:1px solid #d1d5db; border-radius:0.375rem; font-size:0.875rem;">
+                    </div>
+                    <div class="sub-panel size-panel hidden" id="size-for-spec-other"></div>
+                    <div class="sub-panel crust-panel hidden" id="crust-for-spec-other"></div>
+                </div>
+            </div>
+            <hr class="divider">
+
+            <!-- ─── SECTION 4: Inclusions ─── -->
+            <div class="section-label">4. Classic with Inclusions</div>
+            <p class="section-sub">Each inclusion is its own cheesecake — choose a base flavor, size, and crust for each.</p>
+            <div class="flavor-grid" id="inclusions-section">
+                <div class="flavor-item"><label><input type="checkbox" name="Inclusions" value="Chocolate Chips" class="inclusion-checkbox" data-flavor-id="incl-chocolate-chips"><span>Chocolate Chips</span></label><div class="sub-panel base-panel hidden" id="base-flavor-for-incl-chocolate-chips"></div><div class="sub-panel size-panel hidden" id="size-for-incl-chocolate-chips"></div><div class="sub-panel crust-panel hidden" id="crust-for-incl-chocolate-chips"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Inclusions" value="White Chocolate Chips" class="inclusion-checkbox" data-flavor-id="incl-white-choc-chips"><span>White Chocolate Chips</span></label><div class="sub-panel base-panel hidden" id="base-flavor-for-incl-white-choc-chips"></div><div class="sub-panel size-panel hidden" id="size-for-incl-white-choc-chips"></div><div class="sub-panel crust-panel hidden" id="crust-for-incl-white-choc-chips"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Inclusions" value="Butterscotch Chips" class="inclusion-checkbox" data-flavor-id="incl-butterscotch-chips"><span>Butterscotch Chips</span></label><div class="sub-panel base-panel hidden" id="base-flavor-for-incl-butterscotch-chips"></div><div class="sub-panel size-panel hidden" id="size-for-incl-butterscotch-chips"></div><div class="sub-panel crust-panel hidden" id="crust-for-incl-butterscotch-chips"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Inclusions" value="Peanut Butter Chips" class="inclusion-checkbox" data-flavor-id="incl-peanut-butter-chips"><span>Peanut Butter Chips</span></label><div class="sub-panel base-panel hidden" id="base-flavor-for-incl-peanut-butter-chips"></div><div class="sub-panel size-panel hidden" id="size-for-incl-peanut-butter-chips"></div><div class="sub-panel crust-panel hidden" id="crust-for-incl-peanut-butter-chips"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Inclusions" value="Fudge Ripple" class="inclusion-checkbox" data-flavor-id="incl-fudge-ripple"><span>Fudge Ripple</span></label><div class="sub-panel base-panel hidden" id="base-flavor-for-incl-fudge-ripple"></div><div class="sub-panel size-panel hidden" id="size-for-incl-fudge-ripple"></div><div class="sub-panel crust-panel hidden" id="crust-for-incl-fudge-ripple"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Inclusions" value="Caramel Ripple" class="inclusion-checkbox" data-flavor-id="incl-caramel-ripple"><span>Caramel Ripple</span></label><div class="sub-panel base-panel hidden" id="base-flavor-for-incl-caramel-ripple"></div><div class="sub-panel size-panel hidden" id="size-for-incl-caramel-ripple"></div><div class="sub-panel crust-panel hidden" id="crust-for-incl-caramel-ripple"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Inclusions" value="Strawberry Swirl" class="inclusion-checkbox" data-flavor-id="incl-strawberry-swirl"><span>Strawberry Swirl</span></label><div class="sub-panel base-panel hidden" id="base-flavor-for-incl-strawberry-swirl"></div><div class="sub-panel size-panel hidden" id="size-for-incl-strawberry-swirl"></div><div class="sub-panel crust-panel hidden" id="crust-for-incl-strawberry-swirl"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Inclusions" value="Cookie Dough Pieces" class="inclusion-checkbox" data-flavor-id="incl-cookie-dough"><span>Cookie Dough Pieces</span></label><div class="sub-panel base-panel hidden" id="base-flavor-for-incl-cookie-dough"></div><div class="sub-panel size-panel hidden" id="size-for-incl-cookie-dough"></div><div class="sub-panel crust-panel hidden" id="crust-for-incl-cookie-dough"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Inclusions" value="Oreo Pieces" class="inclusion-checkbox" data-flavor-id="incl-oreo-pieces"><span>Oreo Pieces</span></label><div class="sub-panel base-panel hidden" id="base-flavor-for-incl-oreo-pieces"></div><div class="sub-panel size-panel hidden" id="size-for-incl-oreo-pieces"></div><div class="sub-panel crust-panel hidden" id="crust-for-incl-oreo-pieces"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Inclusions" value="Toffee Bits" class="inclusion-checkbox" data-flavor-id="incl-toffee-bits"><span>Toffee Bits</span></label><div class="sub-panel base-panel hidden" id="base-flavor-for-incl-toffee-bits"></div><div class="sub-panel size-panel hidden" id="size-for-incl-toffee-bits"></div><div class="sub-panel crust-panel hidden" id="crust-for-incl-toffee-bits"></div></div>
+                <div class="flavor-item"><label><input type="checkbox" name="Inclusions" value="Nutella Swirl" class="inclusion-checkbox" data-flavor-id="incl-nutella-swirl"><span>Nutella Swirl</span></label><div class="sub-panel base-panel hidden" id="base-flavor-for-incl-nutella-swirl"></div><div class="sub-panel size-panel hidden" id="size-for-incl-nutella-swirl"></div><div class="sub-panel crust-panel hidden" id="crust-for-incl-nutella-swirl"></div></div>
+                <div class="flavor-item full">
+                    <label><input type="checkbox" name="Inclusions" value="Other" class="inclusion-checkbox" data-flavor-id="incl-other" id="inclusion-other-cb"><span>Other Inclusion</span></label>
+                    <div id="inclusion-other-detail" class="hidden" style="margin: 0.4rem 0 0 1.25rem;">
+                        <input type="text" name="Other_Inclusion_Details" id="other_inclusion_details" placeholder="Describe your custom inclusion" style="width:100%; padding:0.4rem 0.6rem; border:1px solid #d1d5db; border-radius:0.375rem; font-size:0.875rem;">
+                    </div>
+                    <div class="sub-panel base-panel hidden" id="base-flavor-for-incl-other"></div>
+                    <div class="sub-panel size-panel hidden" id="size-for-incl-other"></div>
+                    <div class="sub-panel crust-panel hidden" id="crust-for-incl-other"></div>
+                </div>
+            </div>
+            <hr class="divider">
+
+            <!-- ─── SECTION 5: Allergies ─── -->
+            <div class="section-label">5. Allergies</div>
+            <div class="info-yellow" style="margin-bottom:0.75rem;">
+                <strong>Please note:</strong> If we are unable to accommodate your allergy, we will contact you directly.
+            </div>
+            <div class="field-group">
+                <textarea name="Allergies" rows="2" placeholder="List any allergies we should be aware of."></textarea>
+            </div>
+            <hr class="divider">
+
+            <!-- ─── SECTION 6: Contact ─── -->
+            <div class="section-label">6. Your Contact Information</div>
+            <div class="field-group">
+                <label>Full Name *</label>
+                <input type="text" name="Customer_Name" id="Customer_Name" required placeholder="Jane Smith">
+            </div>
+            <div class="field-group">
+                <label>Email Address *</label>
+                <input type="email" name="Customer_Email" id="Customer_Email" required placeholder="name@example.com">
+            </div>
+            <div class="field-group">
+                <label>Phone Number <span style="font-weight:300;color:#888;">(Optional)</span></label>
+                <input type="tel" name="Customer_Phone" id="Customer_Phone" placeholder="555-555-5555">
+            </div>
+            <div class="field-group">
+                <label>Comments <span style="font-weight:300;color:#888;">(Optional)</span></label>
+                <textarea name="Customer_Comments" rows="3" placeholder="Any additional comments or special requests..."></textarea>
+            </div>
+            <hr class="divider">
+
+            <!-- ─── SECTION 7: Ready Date ─── -->
+            <div class="section-label">7. Requested Ready Date &amp; Time</div>
+            <div class="info-yellow" style="margin-bottom:0.75rem;">
+                <strong>Please note:</strong> Cheesecakes require a minimum of <strong>36 hours</strong> to complete.
+            </div>
+            <div class="field-group">
+                <label>Select your preferred ready date and time *</label>
+                <input type="datetime-local" name="Ready_Date_Time" id="Ready_Date_Time" required>
+                <p id="ready-date-error" class="date-blocked-msg">The requested date/time must be at least 36 hours from now.</p>
+                <p id="date-blocked-msg" class="date-blocked-msg">⛔ This date is unavailable or fully booked. Please choose another date.</p>
+            </div>
+
+            <!-- ─── Promo Code ─── -->
+            <div style="margin-top:1.25rem;">
+                <div style="display:flex; gap:0.6rem; align-items:flex-end;">
+                    <div style="flex:1;">
+                        <label style="display:block; font-size:0.85rem; font-weight:600; color:#374151; margin-bottom:0.35rem;">Promo Code <span style="font-weight:300; color:#888;">(Optional)</span></label>
+                        <input type="text" id="promo-code-input" name="Promo_Code" placeholder="Enter code" style="width:100%; padding:0.6rem 0.75rem; border:1.5px solid #d1d5db; border-radius:0.5rem; font-family:'Lato',sans-serif; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em;">
+                    </div>
+                    <button type="button" id="apply-promo-btn" onclick="applyPromo()" style="background:#2d5016; color:#fff; border:none; border-radius:0.5rem; padding:0.6rem 1rem; font-family:'Lato',sans-serif; font-size:0.9rem; cursor:pointer; white-space:nowrap; height:fit-content;">Apply</button>
+                </div>
+                <p id="promo-msg" style="font-size:0.82rem; margin-top:0.35rem; display:none;"></p>
+            </div>
+
+            <!-- ─── Price Summary ─── -->
+            <div class="price-summary" style="margin-top:1rem;">
+                <h3>Order Estimate</h3>
+                <div class="price-row"><span>Cheesecake Base Price</span><span id="base-price-output">$0.00</span></div>
+                <div class="price-row"><span>Specialty Surcharge</span><span id="specialty-surcharge-output">$0.00</span></div>
+                <div class="price-row"><span>Gluten-Free Crust Surcharge</span><span id="gf-surcharge-output">$0.00</span></div>
+                <div class="price-row"><span>Inclusion Surcharge</span><span id="inclusion-fee-output">$0.00</span></div>
+                <div class="price-row" id="promo-row" style="display:none; color:#86efac;"><span>🎉 Promo Discount (BUCKEYE77868)</span><span id="promo-discount-output">-$0.00</span></div>
+                <div class="price-row total"><span>TOTAL ESTIMATE</span><span id="total-price-output">$0.00</span></div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">
+                🎂 Submit Custom Order
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIGURATION — fill these in after Airtable setup
+// ─────────────────────────────────────────────
+const AIRTABLE_API_KEY  = 'YOUR_AIRTABLE_API_KEY';   // from admin panel setup
+const AIRTABLE_BASE_ID  = 'YOUR_AIRTABLE_BASE_ID';   // from admin panel setup
+const NTFY_TOPIC        = 'buckeye-baker-orders';     // change to something unique/private
+
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+// Regular prices
+const sizeOptions = [
+    { value: '',  label: '-- Select Size --', price: 0,  promoPrice: 0,  specialtyFee: 0, promoSpecialtyFee: 0, gfFee: 0, inclFee: 0 },
+    { value: '5', label: '5" — $15 (~4 servings)',  price: 15, promoPrice: 10, specialtyFee: 2, promoSpecialtyFee: 2, gfFee: 2, inclFee: 2 },
+    { value: '6', label: '6" — $20 (~6 servings)',  price: 20, promoPrice: 12, specialtyFee: 3, promoSpecialtyFee: 3, gfFee: 2, inclFee: 3 },
+    { value: '7', label: '7" — $25 (~6 servings)',  price: 25, promoPrice: 15, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 2, inclFee: 5 },
+    { value: '8', label: '8" — $32 (~8 servings)',  price: 32, promoPrice: 20, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
+    { value: '10',label: '10" — $42 (12+ servings)',price: 42, promoPrice: 30, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
+];
+const specialtySizeOptions = [
+    { value: '',  label: '-- Select Size --', price: 0,  promoPrice: 0,  specialtyFee: 0, promoSpecialtyFee: 0, gfFee: 0, inclFee: 0 },
+    { value: '5', label: '5" — $17 (~4 servings)',  price: 17, promoPrice: 12, specialtyFee: 2, promoSpecialtyFee: 2, gfFee: 2, inclFee: 2 },
+    { value: '6', label: '6" — $23 (~6 servings)',  price: 23, promoPrice: 15, specialtyFee: 3, promoSpecialtyFee: 3, gfFee: 2, inclFee: 3 },
+    { value: '7', label: '7" — $30 (~6 servings)',  price: 30, promoPrice: 20, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 2, inclFee: 5 },
+    { value: '8', label: '8" — $37 (~8 servings)',  price: 37, promoPrice: 25, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
+    { value: '10',label: '10" — $47 (12+ servings)',price: 47, promoPrice: 35, specialtyFee: 5, promoSpecialtyFee: 5, gfFee: 3, inclFee: 5 },
+];
+const crustOptions = ['Graham Cracker', 'Chocolate Oreo', 'Golden Oreo', 'Biscoff', 'Gluten-Free Graham', 'Other'];
+
+// ─────────────────────────────────────────────
+// AVAILABILITY (fetched from Airtable)
+// ─────────────────────────────────────────────
+let blockedDates   = [];  // array of "YYYY-MM-DD" strings
+let blockedRanges  = [];  // array of {start: "YYYY-MM-DD", end: "YYYY-MM-DD"}
+let fullDates      = {};  // { "YYYY-MM-DD": count }
+const MAX_PER_DAY  = 4;
+
+async function loadAvailability() {
+    if (!AIRTABLE_API_KEY || AIRTABLE_API_KEY === 'YOUR_AIRTABLE_API_KEY') return;
+    try {
+        // Fetch blocked dates/ranges
+        const blockedRes = await fetch(
+            `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/Blocked_Dates?maxRecords=200`,
+            { headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` } }
+        );
+        const blockedData = await blockedRes.json();
+        blockedDates  = [];
+        blockedRanges = [];
+        (blockedData.records || []).forEach(r => {
+            if (r.fields.Type === 'range') {
+                blockedRanges.push({ start: r.fields.Start_Date, end: r.fields.End_Date });
+            } else {
+                blockedDates.push(r.fields.Date);
+            }
+        });
+
+        // Fetch order counts (for today + next 60 days)
+        const today = new Date();
+        const future = new Date(today); future.setDate(future.getDate() + 60);
+        const filterFormula = encodeURIComponent(
+            `AND(IS_AFTER({Ready_Date}, '${today.toISOString().split('T')[0]}'), IS_BEFORE({Ready_Date}, '${future.toISOString().split('T')[0]}'))`
+        );
+        const ordersRes = await fetch(
+            `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/Orders?fields%5B%5D=Ready_Date&filterByFormula=${filterFormula}&maxRecords=500`,
+            { headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` } }
+        );
+        const ordersData = await ordersRes.json();
+        fullDates = {};
+        (ordersData.records || []).forEach(r => {
+            if (r.fields.Ready_Date) {
+                const d = r.fields.Ready_Date.split('T')[0];
+                fullDates[d] = (fullDates[d] || 0) + 1;
+            }
+        });
+
+        showAvailabilityBanner();
+    } catch(e) {
+        console.log('Availability check skipped:', e.message);
+    }
+}
+
+function isDateBlocked(dateStr) {
+    if (blockedDates.includes(dateStr)) return true;
+    for (const r of blockedRanges) {
+        if (dateStr >= r.start && dateStr <= r.end) return true;
+    }
+    if ((fullDates[dateStr] || 0) >= MAX_PER_DAY) return true;
+    return false;
+}
+
+function showAvailabilityBanner() {
+    // Show next 14 days that have limited availability
+    const banner = document.getElementById('availability-banner');
+    const warnings = [];
+    for (let i = 0; i < 14; i++) {
+        const d = new Date(); d.setDate(d.getDate() + i);
+        const ds = d.toISOString().split('T')[0];
+        if (isDateBlocked(ds)) {
+            warnings.push(ds);
+        }
+    }
+    if (warnings.length > 0) {
+        banner.style.display = 'block';
+        banner.innerHTML = `<div class="info-yellow" style="margin-bottom:1rem;">
+            📅 <strong>Heads up:</strong> Some dates in the next 2 weeks are unavailable or fully booked.
+            Dates shown in red on the calendar are blocked. Please check availability before choosing a date.
+        </div>`;
+    }
+}
+
+// ─────────────────────────────────────────────
+// DROPDOWN BUILDERS
+// ─────────────────────────────────────────────
+function buildSizeSelect(flavorId, isSpecialty) {
+    const opts = isSpecialty ? specialtySizeOptions : sizeOptions;
+    return `<label>Size</label>
+    <select class="size-select" id="size-select-${flavorId}" name="Size_${flavorId}">
+        ${opts.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}
+    </select>`;
+}
+
+function buildCrustSelect(flavorId) {
+    return `<label>Crust Type</label>
+    <select class="crust-select" id="crust-select-${flavorId}" name="Crust_${flavorId}">
+        <option value="">-- Select Crust --</option>
+        ${crustOptions.map(c => `<option value="${c}">${c}</option>`).join('')}
+    </select>
+    <div id="crust-other-${flavorId}" class="hidden" style="margin-top:0.35rem;">
+        <input type="text" name="Crust_Other_${flavorId}" placeholder="Describe your crust" style="width:100%;padding:0.35rem 0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;font-size:0.85rem;">
+    </div>`;
+}
+
+function buildBaseFlavorSelect(flavorId) {
+    return `<label>Base Flavor</label>
+    <select class="incl-base-flavor-select" id="base-flavor-select-${flavorId}" name="Base_For_${flavorId}">
+        <option value="">-- Select Base Flavor --</option>
+        <option value="Vanilla">Vanilla</option>
+        <option value="Chocolate">Chocolate</option>
+        <option value="Other">Other</option>
+    </select>
+    <div id="base-flavor-other-${flavorId}" class="hidden" style="margin-top:0.35rem;">
+        <input type="text" name="Base_Other_${flavorId}" placeholder="Describe your base flavor" style="width:100%;padding:0.35rem 0.5rem;border:1px solid #d1d5db;border-radius:0.375rem;font-size:0.85rem;">
+    </div>`;
+}
+
+function showSubPanels(flavorId, isSpecialty, isInclusion) {
+    const sizeEl  = document.getElementById('size-for-' + flavorId);
+    const crustEl = document.getElementById('crust-for-' + flavorId);
+    if (sizeEl)  { sizeEl.innerHTML  = buildSizeSelect(flavorId, isSpecialty);  sizeEl.classList.remove('hidden'); }
+    if (crustEl) { crustEl.innerHTML = buildCrustSelect(flavorId); crustEl.classList.remove('hidden'); }
+
+    if (isInclusion) {
+        const baseEl = document.getElementById('base-flavor-for-' + flavorId);
+        if (baseEl) { baseEl.innerHTML = buildBaseFlavorSelect(flavorId); baseEl.classList.remove('hidden'); }
+        // Watch for "Other" base flavor
+        const baseSelect = document.getElementById('base-flavor-select-' + flavorId);
+        if (baseSelect) {
+            baseSelect.addEventListener('change', () => {
+                const otherDiv = document.getElementById('base-flavor-other-' + flavorId);
+                if (otherDiv) otherDiv.classList.toggle('hidden', baseSelect.value !== 'Other');
+                updatePrice();
+            });
+        }
+    }
+
+    // Watch crust "Other"
+    const crustSelect = crustEl ? crustEl.querySelector('.crust-select') : null;
+    if (crustSelect) {
+        crustSelect.addEventListener('change', () => {
+            const otherDiv = document.getElementById('crust-other-' + flavorId);
+            if (otherDiv) otherDiv.classList.toggle('hidden', crustSelect.value !== 'Other');
+            updatePrice();
+        });
+    }
+    const sizeSelect = sizeEl ? sizeEl.querySelector('.size-select') : null;
+    if (sizeSelect) sizeSelect.addEventListener('change', updatePrice);
+}
+
+function hideSubPanels(flavorId, isInclusion) {
+    ['size-for-', 'crust-for-'].forEach(prefix => {
+        const el = document.getElementById(prefix + flavorId);
+        if (el) { el.innerHTML = ''; el.classList.add('hidden'); }
+    });
+    if (isInclusion) {
+        const baseEl = document.getElementById('base-flavor-for-' + flavorId);
+        if (baseEl) { baseEl.innerHTML = ''; baseEl.classList.add('hidden'); }
+    }
+}
+
+// ─────────────────────────────────────────────
+// PROMO CODE
+// ─────────────────────────────────────────────
+const PROMO_CODE = 'BUCKEYE77868';
+let promoActive = false;
+
+function applyPromo() {
+    const input = document.getElementById('promo-code-input');
+    const msg   = document.getElementById('promo-msg');
+    const code  = input.value.trim().toUpperCase();
+
+    if (code === PROMO_CODE) {
+        promoActive = true;
+        msg.style.display = 'block';
+        msg.style.color   = '#16a34a';
+        msg.textContent   = '✅ Promo code applied! Friends & family pricing unlocked.';
+        input.style.borderColor = '#16a34a';
+        document.getElementById('apply-promo-btn').textContent = '✓ Applied';
+        document.getElementById('apply-promo-btn').style.background = '#16a34a';
+        updatePriceTable();
+        updatePrice();
+    } else if (code === '') {
+        msg.style.display = 'none';
+    } else {
+        promoActive = false;
+        msg.style.display = 'block';
+        msg.style.color   = '#dc2626';
+        msg.textContent   = '❌ Invalid promo code.';
+        input.style.borderColor = '#dc2626';
+        updatePrice();
+    }
+}
+
+function updatePriceTable() {
+    // Update the visible price reference table when promo is active
+    const prices = promoActive
+        ? { '5': '$10', '6': '$12', '7': '$15', '8': '$20', '10': '$30' }
+        : { '5': '$15', '6': '$20', '7': '$25', '8': '$32', '10': '$42' };
+    Object.entries(prices).forEach(([size, price]) => {
+        const el = document.getElementById('display-price-' + size);
+        if (el) el.textContent = price;
+    });
+}
+
+// ─────────────────────────────────────────────
+// PRICE CALCULATOR
+// ─────────────────────────────────────────────
+function getOptions(isSpecialty) { return isSpecialty ? specialtySizeOptions : sizeOptions; }
+
+function updatePrice() {
+    let baseTotal = 0, promoBaseTotal = 0;
+    let specialtyTotal = 0, promoSpecialtyTotal = 0;
+    let gfTotal = 0, inclTotal = 0;
+
+    document.querySelectorAll('.flavor-checkbox:checked, .specialty-checkbox:checked').forEach(cb => {
+        const id = cb.dataset.flavorId;
+        const isSpec = cb.classList.contains('specialty-checkbox');
+        const sel = document.getElementById('size-select-' + id);
+        const crust = document.getElementById('crust-select-' + id);
+        if (!sel || !sel.value) return;
+        const opt = getOptions(isSpec).find(o => o.value === sel.value);
+        if (!opt) return;
+        baseTotal += opt.price;
+        promoBaseTotal += opt.promoPrice;
+        if (isSpec) { specialtyTotal += opt.specialtyFee; promoSpecialtyTotal += opt.promoSpecialtyFee; }
+        if (crust && crust.value === 'Gluten-Free Graham') gfTotal += opt.gfFee;
+    });
+
+    document.querySelectorAll('.inclusion-checkbox:checked').forEach(cb => {
+        const id = cb.dataset.flavorId;
+        const sel = document.getElementById('size-select-' + id);
+        const crust = document.getElementById('crust-select-' + id);
+        if (!sel || !sel.value) return;
+        const opt = sizeOptions.find(o => o.value === sel.value);
+        if (!opt) return;
+        baseTotal += opt.price;
+        promoBaseTotal += opt.promoPrice;
+        inclTotal += opt.inclFee;
+        if (crust && crust.value === 'Gluten-Free Graham') gfTotal += opt.gfFee;
+    });
+
+    const fullTotal  = baseTotal + specialtyTotal + gfTotal + inclTotal;
+    const promoTotal = promoBaseTotal + promoSpecialtyTotal + gfTotal + inclTotal;
+    const discount   = fullTotal - promoTotal;
+
+    document.getElementById('base-price-output').textContent         = `$${baseTotal.toFixed(2)}`;
+    document.getElementById('specialty-surcharge-output').textContent = `$${specialtyTotal.toFixed(2)}`;
+    document.getElementById('gf-surcharge-output').textContent       = `$${gfTotal.toFixed(2)}`;
+    document.getElementById('inclusion-fee-output').textContent      = `$${inclTotal.toFixed(2)}`;
+
+    if (promoActive && discount > 0) {
+        document.getElementById('promo-row').style.display = 'flex';
+        document.getElementById('promo-discount-output').textContent = `-$${discount.toFixed(2)}`;
+        document.getElementById('total-price-output').textContent    = `$${promoTotal.toFixed(2)}`;
+        document.getElementById('Total_Estimated_Price').value       = `$${promoTotal.toFixed(2)} (promo: BUCKEYE77868)`;
+    } else {
+        document.getElementById('promo-row').style.display = 'none';
+        document.getElementById('total-price-output').textContent    = `$${fullTotal.toFixed(2)}`;
+        document.getElementById('Total_Estimated_Price').value       = `$${fullTotal.toFixed(2)}`;
+    }
+}
+
+// ─────────────────────────────────────────────
+// DATE VALIDATION
+// ─────────────────────────────────────────────
+function validateReadyDate() {
+    const input = document.getElementById('Ready_Date_Time');
+    const errMin = document.getElementById('ready-date-error');
+    const errBlock = document.getElementById('date-blocked-msg');
+    if (!input.value) return false;
+
+    const chosen = new Date(input.value);
+    const minTime = new Date(Date.now() + 36 * 60 * 60 * 1000);
+    if (chosen < minTime) {
+        errMin.style.display = 'block';
+        errBlock.style.display = 'none';
+        return false;
+    }
+
+    const dateStr = input.value.split('T')[0];
+    if (isDateBlocked(dateStr)) {
+        errBlock.style.display = 'block';
+        errMin.style.display = 'none';
+        return false;
+    }
+
+    errMin.style.display = 'none';
+    errBlock.style.display = 'none';
+    return true;
+}
+
+// ─────────────────────────────────────────────
+// NTFY NOTIFICATION
+// ─────────────────────────────────────────────
+async function sendNtfyNotification(customerName, readyDate, estimate) {
+    if (!NTFY_TOPIC || NTFY_TOPIC === 'buckeye-baker-orders') {
+        // Still send even with default topic — user should change it to something private
+    }
+    try {
+        await fetch(`https://ntfy.sh/${NTFY_TOPIC}`, {
+            method: 'POST',
+            headers: {
+                'Title': '🎂 New Cheesecake Order!',
+                'Priority': 'high',
+                'Tags': 'cake,bell',
+            },
+            body: `From: ${customerName}\nReady: ${readyDate}\nEstimate: ${estimate}\n\nCheck your email for full details.`
+        });
+    } catch(e) {
+        // Fail silently — form still submits
+        console.log('Ntfy notification failed:', e.message);
+    }
+}
+
+// ─────────────────────────────────────────────
+// INIT & EVENT LISTENERS
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    loadAvailability();
+
+    // Flavor checkboxes
+    document.querySelectorAll('.flavor-checkbox').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const id = cb.dataset.flavorId;
+            if (cb.checked) {
+                showSubPanels(id, false, false);
+                if (id === 'base-other') {
+                    document.getElementById('base-other-detail').classList.remove('hidden');
+                }
+            } else {
+                hideSubPanels(id, false);
+                if (id === 'base-other') {
+                    document.getElementById('base-other-detail').classList.add('hidden');
+                }
+            }
+            updatePrice();
+        });
+    });
+
+    // Specialty checkboxes
+    document.querySelectorAll('.specialty-checkbox').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const id = cb.dataset.flavorId;
+            if (cb.checked) {
+                showSubPanels(id, true, false);
+                if (id === 'spec-other') document.getElementById('specialty-other-detail').classList.remove('hidden');
+            } else {
+                hideSubPanels(id, false);
+                if (id === 'spec-other') document.getElementById('specialty-other-detail').classList.add('hidden');
+            }
+            updatePrice();
+        });
+    });
+
+    // Inclusion checkboxes
+    document.querySelectorAll('.inclusion-checkbox').forEach(cb => {
+        cb.addEventListener('change', () => {
+            const id = cb.dataset.flavorId;
+            if (cb.checked) {
+                showSubPanels(id, false, true);
+                if (id === 'incl-other') document.getElementById('inclusion-other-detail').classList.remove('hidden');
+            } else {
+                hideSubPanels(id, true);
+                if (id === 'incl-other') document.getElementById('inclusion-other-detail').classList.add('hidden');
+            }
+            updatePrice();
+        });
+    });
+
+    // Promo code — apply on Enter key
+    document.getElementById('promo-code-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); applyPromo(); }
+    });
+
+    // Date validation on change
+    document.getElementById('Ready_Date_Time').addEventListener('change', validateReadyDate);
+
+    // Set minimum date (36h from now)
+    const minDt = new Date(Date.now() + 36 * 60 * 60 * 1000);
+    const pad = n => String(n).padStart(2, '0');
+    document.getElementById('Ready_Date_Time').min =
+        `${minDt.getFullYear()}-${pad(minDt.getMonth()+1)}-${pad(minDt.getDate())}T${pad(minDt.getHours())}:${pad(minDt.getMinutes())}`;
+
+    // Form submission
+    document.getElementById('cheesecake-form').addEventListener('submit', async (e) => {
+        if (!validateReadyDate()) {
+            e.preventDefault();
+            document.getElementById('Ready_Date_Time').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        const anyBase      = [...document.querySelectorAll('.flavor-checkbox')].some(c => c.checked);
+        const anySpecialty = [...document.querySelectorAll('.specialty-checkbox')].some(c => c.checked);
+        const anyInclusion = [...document.querySelectorAll('.inclusion-checkbox')].some(c => c.checked);
+        if (!anyBase && !anySpecialty && !anyInclusion) {
+            e.preventDefault();
+            alert('Please select at least one cheesecake flavor or inclusion.');
+            document.getElementById('flavor-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        // Validate size & crust for each checked item
+        const allChecked = document.querySelectorAll('.flavor-checkbox:checked, .specialty-checkbox:checked');
+        for (const cb of allChecked) {
+            const id = cb.dataset.flavorId;
+            const sizeEl = document.getElementById('size-select-' + id);
+            if (sizeEl && !sizeEl.value) {
+                e.preventDefault();
+                alert(`Please select a size for: ${cb.value}`);
+                sizeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const crustEl = document.getElementById('crust-select-' + id);
+            if (crustEl && !crustEl.value) {
+                e.preventDefault();
+                alert(`Please select a crust type for: ${cb.value}`);
+                crustEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+        }
+
+        for (const cb of document.querySelectorAll('.inclusion-checkbox:checked')) {
+            const id = cb.dataset.flavorId;
+            const baseEl = document.getElementById('base-flavor-select-' + id);
+            if (baseEl && !baseEl.value) {
+                e.preventDefault();
+                alert(`Please select a base flavor for inclusion: ${cb.value}`);
+                baseEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const sizeEl = document.getElementById('size-select-' + id);
+            if (sizeEl && !sizeEl.value) {
+                e.preventDefault();
+                alert(`Please select a size for inclusion: ${cb.value}`);
+                sizeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const crustEl = document.getElementById('crust-select-' + id);
+            if (crustEl && !crustEl.value) {
+                e.preventDefault();
+                alert(`Please select a crust type for inclusion: ${cb.value}`);
+                crustEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+        }
+
+        // Build subject line
+        const name  = document.getElementById('Customer_Name').value.trim();
+        const rdv   = document.getElementById('Ready_Date_Time').value;
+        const fmtDate = rdv ? new Date(rdv).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        document.getElementById('email-subject').value = `🎂 New Order: ${name} — Ready ${fmtDate}`;
+
+        // Send Ntfy notification (fire and forget — don't await or it blocks submit)
+        const estimate = document.getElementById('total-price-output').textContent;
+        sendNtfyNotification(name, fmtDate, estimate);
+
+        // Let form submit normally to FormSubmit.co
+    });
+});
+</script>
+</body>
+</html>
